@@ -32,10 +32,9 @@ void errorFork (char *str1, char *str2, char *str3, int code)
 	g_ex_status = code;
 }
 
-void errorMinishell (char *str1, char *str2, char *str3, int code)
+void errorMinishell (char *str1, char *str2, char *str3)
 {
 	ft_putstr_fd(str1, 2);
 	ft_putstr_fd(str2, 2);
 	ft_putstr_fd(str3, 2);
-	g_ex_status = code;
 }

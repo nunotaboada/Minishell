@@ -77,3 +77,5 @@ int main(int ac, char **av, char **envp)
     free_all(&shell);
     return (0);
 }
+
+// existe um problems de saída com as variaveis env, terá que se fazer mtrfree

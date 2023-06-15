@@ -25,7 +25,7 @@ RM = rm -rf
 CPPFLAGS=-I/usr/local/opt/readline/include
 LDFLAGS=-L/usr/local/opt/readline/lib
 
-SRC = main.c prompt.c init.c signal.c utils.c echo.c builtins.c pwd.c cd.c exit.c envp.c mtr_util.c export.c unset.c env.c ft_token_utils.c aspas.c cmd_utils.c expander_copy.c expand_utils.c error.c input.c parser.c parser_utils.c path.c exec.c free.c
+SRC = main.c prompt.c init.c signal.c utils.c echo.c builtins.c pwd.c cd.c exit.c envp.c mtr_util.c export.c unset.c env.c ft_token_utils.c aspas.c cmd_utils.c expander_copy.c expand_utils.c error.c input.c parser.c parser_utils.c path.c exec.c free.c redirect_in.c redirect_out.c redirects_utils.c
 
 
 # OBJS_FILES = $(SRC:.c=.o)

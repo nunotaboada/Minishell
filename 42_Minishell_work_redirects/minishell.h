@@ -125,7 +125,7 @@ bool verificarAspas(t_shell *sh);
 // Errors
 int error_quotes(char erro);
 void errorFork (char *str1, char *str2, char *str3, int code);
-void errorMinishell (char *str1, char *str2, char *str3, int code);
+void errorMinishell (char *str1, char *str2, char *str3);
 
 /*free*/
 void	free_all(t_shell *sh);
@@ -159,5 +159,16 @@ int is_dir(const char *path);
 int execCmd (t_shell *sh);
 int is_fork(t_shell *sh, t_cmds *cmd, int *fd);
 void makeFork(t_shell *sh, t_cmds *cmd, int *fd);
+
+/*redirects*/
+char *dirPath(t_shell *sh);
+char *fullPath(char *path, t_token *token);
+int	parse_redirecs(t_shell *sh, t_cmds *node, t_token *token);
+int	fileIn(char *allPath, t_cmds *node, t_token *token);
+int openFileRedirIn(char *path, t_cmds *node, t_token *token);
+int redIn (t_shell *sh, t_cmds *node, t_token *token);
+int fileOut(char *allPath, t_cmds *node, t_token *token);
+int openFileRedirOut(char *path, t_cmds *node, t_token *token);
+int redOut (t_shell *sh, t_cmds *node, t_token *token);
 
 #endif

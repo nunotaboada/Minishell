@@ -49,8 +49,8 @@ int checkOperators(t_shell *sh, t_token *token, t_cmds *node)
 		node_cmds(&(sh->cmds));
 		node = node->next;// utilizado para iniciar o nó a seguir
 		initNodeCmds(node);
-	} // a partir daqui considerar os redirecs
-	else if (ft_strcmp(token->word, "<<") == 0)
+	}
+	else if (ft_strcmp(token->word, "<<") == 0) // pode ser alterado
 		return (parse_redirecs(sh, node, token));
 	else
 		return (parse_redirecs(sh, node, token));
