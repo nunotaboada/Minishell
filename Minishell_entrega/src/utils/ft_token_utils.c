@@ -46,7 +46,7 @@ void	*node(t_shell *sh, char *word)
 	new = (t_token *)malloc(sizeof(t_token));
 	if (!new)
 		return (NULL);
-	new->word = word;
+	new->word = ft_strdup(word); // foi alterado só tinha word
 	new->type = 'N';
 	new->next = NULL;
 	new->prev = NULL;

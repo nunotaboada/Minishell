@@ -1,17 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   expand.c                                           :+:      :+:    :+:   */
+/*   expander.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nmoreira <nmoreira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/06/20 14:48:59 by nmoreira          #+#    #+#             */
-/*   Updated: 2023/06/20 14:48:59 by nmoreira         ###   ########.fr       */
+/*   Created: 2023/05/24 00:55:16 by nmoreira          #+#    #+#             */
+/*   Updated: 2023/05/24 00:55:16 by nmoreira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+extern int	g_ex_status;
+
+/* caso importante $USER$USERls-l$USER$USER e $USERls-l*/
 char	*concate(char *new_str, char *rest)
 {
 	char	*tmp;
@@ -21,14 +24,11 @@ char	*concate(char *new_str, char *rest)
 	{
 		tmp = ft_strdup(new_str);
 		free(new_str);
-		new_str = NULL;
 		new_str = ft_strjoin(tmp, rest);
 		free(tmp);
 	}
 	else
 		new_str = ft_strdup(rest);
-	// free(rest); // ver se funciona com isto
-	printf("new str com quotes checkEnv: %s\n", new_str);
 	return (new_str);
 }
 
@@ -37,39 +37,43 @@ char	*new_word(t_shell *sh, char *temp)
 	char	*rest;
 	char	*new_str;
 
-	new_str = NULL;
-	rest = NULL;
 	sh->i = 0;
-	while (temp[sh->i])
+	rest = NULL;
+	new_str = NULL;
+	while (temp[sh->i] != '\0')
 	{
 		rest = allword(sh, temp);
+		printf("rest1 new_word %s\n", rest);
 		if (rest)
+		{
 			new_str = concate(new_str, rest);
-		// sh->i = end_varpos(temp, sh->i + 1);
-		// sh->i++;
-		printf("sh->i 3 newword %d\n", sh->i);
+			free(rest);
+			printf("teste 2 new_word%d\n", sh->i);
+		}
 	}
 	return (new_str);
 }
 
 int	expand(t_shell *sh)
 {
+	char	*temp;
 	t_token	*node;
-	char	*tmp;
 
 	node = NULL;
 	node = sh->head_token;
-	while (node != NULL)
+	while (node)
 	{
 		if (ft_strchr(node->word, '$'))
 		{
-			tmp = ft_strdup(node->word);
-			printf("len do temp no expand %ld\n", ft_strlen(node->word));
+			temp = ft_strdup(node->word);
 			free(node->word);
-			node->word = new_word(sh, tmp);
-			free(tmp);
+			node->word = new_word(sh, temp);
+			free(temp);
 		}
+		sh->dquotes = 0;
 		node = node->next;
 	}
+	printf("after expander\n");
+	print_list(sh);
 	return (0);
 }

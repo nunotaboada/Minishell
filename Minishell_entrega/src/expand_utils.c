@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: nmoreira <nmoreira@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/06/08 17:00:32 by nmoreira          #+#    #+#             */
-/*   Updated: 2023/06/08 17:00:32 by nmoreira         ###   ########.fr       */
+/*   Created: 2023/06/20 17:02:07 by nmoreira          #+#    #+#             */
+/*   Updated: 2023/06/20 17:02:07 by nmoreira         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,19 @@
 
 extern int	g_ex_status;
 
-static char	*get_env1(char *var, t_shell *sh)
+int	end_varpos(char *s, int pos)
 {
-	int		pos;
+	int len;
 
-	pos = pos_envp(var, sh->envp);
-	if (pos < 0 || !ft_strchr(sh->envp[pos], '='))
-		return (NULL);
-	return (ft_strdup(sh->envp[pos] + (ft_strlen(var) + 1)));
+	len = ft_strlen(s);
+	while (pos < len)
+	{
+		if (s[pos] == '$' || s[pos] == '\'' || s[pos] == '\"' || s[pos - 1] == '?' \
+		|| s[pos] == '\0')
+			return (pos);
+		pos++;
+	}
+	return (len);
 }
 
 static char	*ft_result(char *str, char *env)
@@ -38,7 +43,9 @@ static char	*ft_result(char *str, char *env)
 	else if (env)
 		result = ft_strdup(env);
 	printf("result dentro do ft_result: %s\n", result);
-	return (result);
+	if (result)
+		return (result);
+	return (NULL);
 }
 
 static char	*checkenv(char *str, t_shell *sh)
@@ -77,138 +84,163 @@ static char	*checkenv(char *str, t_shell *sh)
 				i++;
 			var = ft_substr(str, start, i - start);
 			printf("var quotes checkEnv: %s\n", var);
-			env = get_env1(var, sh);
+			if (sh->dquotes)
+				env = get_env(var, sh);
+			else
+				env = ft_substr(str, start - 1, i - start + 1);
 			printf("env1 quotes checkEnv: %s\n", env);
 			free (var);
 		}
+		printf("word quotes checkEnv: %s\n", word);
 		word = concate(word, ft_result(rest, env));
+		printf("word1 quotes checkEnv: %s\n", word);
 		free(env);
 		free(rest);
 	}
 	return (word);
 }
 
+/* devolve expansao ou null */
+char	*doexp(t_shell *sh, char *temp)
+{
+	char	*expansion;
+	char	*env;
+	char	*rest1;
+	int		i;
+	int		start;
+
+	// i = sh->i;
+	i = 0;
+	expansion = NULL;
+	env = NULL;
+	rest1 = NULL;
+	printf("char inicio doexp %c\n", temp[sh->i]);
+	if (temp[sh->i] == '\"')
+	{
+		sh->i++;
+		printf(" before sh->dquotes %d\n", sh->dquotes);
+		sh->dquotes = !sh->dquotes;
+		printf(" after sh->dquotes %d\n", sh->dquotes);
+		start = sh->i;
+		while (temp[sh->i] != '\"' && temp[sh->i] !='\0')
+			sh->i++;
+		if (sh->i > start)
+			rest1 = ft_substr(temp, start, sh->i - start);
+		printf("rest1 dquotes %s\n", rest1);
+		// if (sh->dquotes && temp[sh->i] != '\"')
+			env = checkenv(rest1, sh);
+		printf("left1 dquotes %s\n", env);
+		printf("char fim dquotes 1 %c\n", temp[sh->i]);
+		// sh->i++;
+		printf("sh->i 2 %d\n", sh->i);
+		if (env)
+			return (env);
+		return (NULL);
+	}
+	i = sh->i;
+	printf("char teste dquotes 1 %c\n", temp[sh->i]);
+	printf(" incremento i %d\n", i);
+	printf("end var pos %d\n", end_varpos(temp, i + 1));
+	printf("end var pos char %c\n", temp[end_varpos(temp, i + 1)]);
+	// if (end_varpos(temp, i + 1) = '$') // pode não funcionar
+	if (end_varpos(temp, i + 1) < (int)ft_strlen(temp)) // tinha <= mas tive que colocar < devido ao caso 12345'$USER' que dava segfault
+	{
+		expansion = ft_substr(temp, i, end_varpos(temp, i + 1) - i);
+		printf("expansion 1 %s\n", expansion);
+	}
+	// else
+	// {
+	// 	expansion = ft_substr(temp, i, end_varpos(temp, i + 1) - 1);
+	// 	printf("expansion 2 %s\n", expansion);
+	// }
+	else
+	{
+		expansion = ft_substr(temp, i, end_varpos(temp, i + 1) - i);
+		printf("expansion 2 %s\n", expansion);
+	}
+	if (ft_strcmp(expansion, "$?") == 0)
+	{
+		free(expansion);
+		sh->i += 2;
+		return (ft_itoa(g_ex_status));
+	}
+	// sh->i = end_varpos(temp, i + 1) - 1;
+	printf("sh->i 4 %d\n", sh->i);
+	if (!(ft_strcmp(expansion, "$")))
+	{
+		sh->i++;
+		return (expansion);
+	}
+	if (ft_strlen(expansion))
+		env = get_env(expansion + 1, sh);
+	printf("len expansion 3 %ld\n", ft_strlen(expansion));
+	printf("expansion 3 %s\n", expansion + 1);
+	printf("env %s\n", env);
+	free(expansion);
+	if (env)
+	{
+		sh->i = end_varpos(temp, i + 1);
+		return (env);
+	}
+	// sh->i++;
+	sh->i = end_varpos(temp, i + 1);
+	return (NULL);
+}
+
 char	*restexp(t_shell *sh, char *temp)
 {
-	int			start;
-	char		*rest;
-	char		*rest1;
+	char	*left;
+	int		start;
 
-	rest = NULL;
-	rest1 = NULL;
+	left = NULL;
 	start = sh->i;
+	printf("char antes dquotes %c\n", temp[sh->i]);
 	while (temp[sh->i] != '\0' && temp[sh->i] != '$' && temp[sh->i] != '\"')
 	{
 		if (temp[sh->i] == '\'')
 		{
 			sh->i++;
-			while (temp[sh->i] != '\'' && temp[sh->i] != '\0')
+			while (temp[sh->i] != '\'')
 				sh->i++;
-			sh->i++; // posso que ter de colocar um if par o caso null terminator
+			sh->i++;
 		}
 		else
 			sh->i++;
 	}
-	if (sh->i - start > 0)
+	if (sh->i > start)
 	{
-		printf("char start restExp:%c\n", temp[start]);
-		printf("char final restExp:%c\n", temp[sh->i - 1]);
-		printf("quotes final restExp:%d\n", sh->dquotes);
-		if (sh->dquotes)
-		{
-			rest1 = ft_substr(temp, start, sh->i - start);
-			printf("teste1\n");
-			rest = checkenv(rest1, sh);
-			printf("env quotes restExp: %s\n", rest);
-			free(rest1);
-		}
-		else
-		{
-			rest = ft_substr(temp, start, sh->i - start);
-			printf("teste2 restExp\n");
-		}
-		return (rest);
-	}
-	else
-		return (NULL);
-}
-
-char	*doexp(t_shell *sh, char *temp)
-{
-	int			start;
-	char		*var;
-	char		*env;
-
-	var = NULL;
-	env = NULL;
-	start = 0;
-	printf("char doExp %c\n", temp[sh->i]);
-	if (temp[sh->i] == '\"')
-	{
-		sh->i++;
-		sh->dquotes = 1;
-	}
-	if (temp[sh->i] == '$')
-	{
-		start = sh->i;
-		sh->i++;
-		while (temp[sh->i] != ' ' && temp[sh->i] != '$' && \
-		temp[sh->i] != '\"' && temp[sh->i] != '\0' && temp[sh->i] != '\'')
-			sh->i++;
-		if (sh->i - start > 0)
-		{
-			var = ft_substr(temp, start, sh->i - start);
-			printf("var1 doExp %s\n", var);
-		}
-		if (ft_strcmp(var, "$?") == 0)
-		{
-			free(var);
-			return (ft_itoa(g_ex_status));
-		}
-		if ((ft_strcmp(var, "$") == 0))
-			return (var);
-		else
-		{
-			free(var);
-			var = ft_substr(temp, start + 1, sh->i - start - 1);
-			printf("var2 doExp 1: %s\n", var);
-		}
-		env = get_env(var, sh);
-		printf("env doExp %s\n", env);
-		if (env)
-			return (ft_strdup(env));
-	}
+		left = ft_substr(temp, start, sh->i - start);
+		printf("left dquotes %s\n", left);
+		printf("char fim dquotes %c\n", temp[sh->i]);
+		return (left);
+	}	
 	return (NULL);
 }
 
 char	*allword(t_shell *sh, char *temp)
 {
 	char	*rest;
-	char	*wordexp;
-	char	*totalword;
+	char	*parsed;
+	char	*expansion;
 
 	rest = NULL;
-	totalword = NULL;
-	wordexp = NULL;
-	rest = restexp(sh, temp);
-	printf("rest allWord %s\n", rest);
-	printf("teste allWord %d\n", sh->i);
-	wordexp = doexp(sh, temp);
-	if (rest && wordexp)
+	parsed = restexp(sh, temp);
+	expansion = doexp(sh, temp);
+	if (expansion && parsed)
 	{
-		totalword = ft_strjoin(rest, wordexp);
-		free(rest);
-		free(wordexp);
+		rest = ft_strjoin(parsed, expansion);
+		free(parsed);
+		free(expansion);
 	}
-	else if (rest)
+	else if (parsed)
 	{
-		totalword = ft_strdup(rest);
-		free(rest);
+		rest = ft_strdup(parsed);
+		free(parsed);
 	}
-	else if (wordexp)
+	else if (expansion)
 	{
-		totalword = ft_strdup(wordexp);
-		free(wordexp);
+		rest = ft_strdup(expansion);
+		free(expansion);
 	}
-	return (totalword);
+	return (rest);
 }

@@ -138,6 +138,7 @@ char	*concate(char *new_str, char *rest);
 char	*restexp(t_shell *sh, char *temp);
 char	*doexp(t_shell *sh, char *temp);
 char	*allword(t_shell *sh, char *temp);
+int		end_varpos(char *s, int pos);
 
 /*parser*/
 void	*node_cmds(t_cmds **node);

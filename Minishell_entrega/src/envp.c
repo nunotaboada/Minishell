@@ -12,7 +12,7 @@
 
 #include "../minishell.h"
 
-int	pos_envp(char *var, char **envp)
+int	pos_envp(char *var, char **envp) //alterado
 {
 	int		i;
 	int		len;
@@ -20,12 +20,13 @@ int	pos_envp(char *var, char **envp)
 	if (!envp || !*envp)
 		return (-1);
 	len = ft_strlen(var);
+	printf("len getenv %d\n", len);
 	i = -1;
 	while (envp[++i])
 	{
 		if (!ft_strncmp(envp[i], var, len))
 		{
-			if (pos_char(var, '=') == len || pos_char(var, '\0') == len)
+			if (pos_char(envp[i], '=') == len || pos_char(envp[i], '\0') == len)
 				return (i);
 		}
 	}
@@ -36,7 +37,9 @@ char	*get_env(char *var, t_shell *sh)
 {
 	int		pos;
 
+	printf("var getenv %s\n", var);
 	pos = pos_envp(var, sh->envp);
+	printf("pos getenv %d\n", pos);
 	if (pos < 0 || !ft_strchr(sh->envp[pos], '='))
 		return (NULL);
 	return (ft_strdup(sh->envp[pos] + (ft_strlen(var) + 1)));
