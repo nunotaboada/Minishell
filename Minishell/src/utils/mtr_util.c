@@ -38,6 +38,7 @@ void	mtr_free(char **matriz)
 	matriz = NULL;
 }
 
+/*função alterada devido a libertar a tmp quando cat | cat | cat | echo a*/
 char	**mtr_dup(char **matriz)
 {
 	int		i;

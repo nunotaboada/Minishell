@@ -46,7 +46,7 @@ void	*node(t_shell *sh, char *word)
 	new = (t_token *)malloc(sizeof(t_token));
 	if (!new)
 		return (NULL);
-	new->word = word;
+	new->word = ft_strdup(word);
 	new->type = 'N';
 	new->next = NULL;
 	new->prev = NULL;
@@ -72,6 +72,7 @@ void	token_node(t_shell *sh, char c)
 	{
 		str = ft_substr(sh->cmd_line, sh->wd_lim, (sh->i - sh->wd_lim));
 		node(sh, str);
+		free(str);
 	}
 	sh->wd_lim = sh->i;
 	if (c != 'N')

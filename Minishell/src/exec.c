@@ -14,40 +14,27 @@
 
 extern int	g_ex_status;
 
-int	is_dir(const char *path)
+void	childprocess(t_cmds *cmd, int *fd)
 {
-	DIR		*dir;
-
-	dir = opendir(path);
-	if (dir)
+	if (cmd->infd != STDIN_FILENO)
 	{
-		closedir(dir);
-		return (1);
+		if (dup2(cmd->infd, STDIN_FILENO) == -1)
+			g_ex_status = 1;
+		close(cmd->infd);
 	}
-	return (0);
-}
-
-int	is_fork(t_shell *sh, t_cmds *cmd, int *fd)
-{
-	if (cmd->infd == -1 || cmd->outfd == -1)
-		return (0);
-	if ((cmd->path && !access(cmd->path, X_OK) \
-	&& !is_dir(cmd->path)) || checkbuiltins(cmd))
+	if (cmd->outfd != STDOUT_FILENO)
 	{
-		makefork(sh, cmd, fd);
-		sh->fork = 1;
-		sh->proc++;
+		if (dup2(cmd->outfd, STDOUT_FILENO) == -1)
+			g_ex_status = 1;
+		close(cmd->outfd);
 	}
-	if (!cmd->path && ft_strchr(cmd->cmd_line[0], '/'))
-		errorfork("minishell: ", cmd->cmd_line[0], \
-		": No such file or directory\n", 127);
-	else if (!cmd->path && !ft_strchr(cmd->cmd_line[0], '/'))
-		errorfork("minishell: ", cmd->cmd_line[0], ": command not found\n", 127);
-	else if (is_dir(cmd->path))
-		errorfork("minishell: ", cmd->cmd_line[0], ": Is directory\n", 126);
-	else if (access(cmd->path, X_OK) == -1)
-		errorfork("minishell: ", cmd->cmd_line[0], ": Permission denied\n", 126);
-	return (1);
+	else if (cmd->next)
+	{
+		if (dup2(fd[1], STDOUT_FILENO) == -1)
+			g_ex_status = 1;
+	}
+	close(fd[1]);
+	close(fd[0]);
 }
 
 void	makefork(t_shell *sh, t_cmds *cmd, int *fd)
@@ -61,33 +48,30 @@ void	makefork(t_shell *sh, t_cmds *cmd, int *fd)
 	}
 	if (sh->pid == 0)
 	{
-		if (cmd->infd != STDIN_FILENO)
-		{
-			if (dup2(cmd->infd, STDIN_FILENO) == -1)
-				g_ex_status = 1;
-			close(cmd->infd);
-		}
-		if (cmd->outfd != STDOUT_FILENO)
-		{
-			if (dup2(cmd->outfd, STDOUT_FILENO) == -1)
-				g_ex_status = 1;
-			close(cmd->outfd);
-		}
-		else if (cmd->next)
-		{
-			if (dup2(fd[1], STDOUT_FILENO) == -1)
-				g_ex_status = 1;
-		}
-		close(fd[1]);
-		close(fd[0]);
+		childprocess(cmd, fd);
 		signal(SIGINT, SIG_DFL);
 		signal(SIGQUIT, SIG_DFL);
 		if (!checkbuiltins(cmd))
 			execve(cmd->path, cmd->cmd_line, sh->envp);
 		else if (checkbuiltins(cmd) > 0)
 			builtins(cmd, sh);
+		free(sh->cmd_line);
+		free_all(sh);
 		exit(g_ex_status);
 	}
+}
+
+void	parentprocess(t_cmds *cmd, int *fd)
+{
+	close(fd[1]);
+	if (cmd->next && (cmd->next->infd == STDIN_FILENO))
+		cmd->next->infd = fd[0];
+	else
+		close(fd[0]);
+	if (cmd->infd > 2)
+		close(cmd->infd);
+	if (cmd->outfd > 2)
+		close(cmd->outfd);
 }
 
 /*lembrar de libertar a path*/
@@ -105,27 +89,17 @@ int	execcmd(t_shell *sh)
 		else if (cmd->cmd_line && cmd->infd != -2 && cmd->outfd != -2)
 		{
 			signal(SIGINT, SIG_IGN);
-			signal(SIGQUIT, SIG_IGN);
+			signal(SIGQUIT, signal_quit);
 			cmd->path = search_path(sh, cmd);
-			printf("Path: %s\n", cmd->path);
 			if (pipe(fd) == -1)
 			{
 				g_ex_status = 1;
 				return (1);
 			}
 			is_fork(sh, cmd, fd);
-			close(fd[1]);
-			if (cmd->next && (cmd->next->infd == STDIN_FILENO))
-				cmd->next->infd = fd[0];
-			else
-				close(fd[0]);
-			if (cmd->infd > 2)
-				close(cmd->infd);
-			if (cmd->outfd > 2)
-				close(cmd->outfd);
+			parentprocess(cmd, fd);
 		}
 		cmd = cmd->next;
 	}
-	printf("processos %d\n", sh->proc);
 	return (0);
 }

@@ -38,3 +38,25 @@ int	pos_char(char *str, char c)
 		return (i);
 	return (-1);
 }
+
+void	put_var_env_from_cmd(char *cmd, t_shell *shell)
+{
+	char	*var;
+	char	*value;
+	char	*equals;
+
+	equals = ft_strchr(cmd, '=');
+	if (equals)
+	{
+		var = ft_substr(cmd, 0, equals - cmd);
+		value = ft_strdup(equals + 1);
+	}
+	else
+	{
+		var = ft_strdup(cmd);
+		value = NULL;
+	}
+	put_var_env(var, value, shell);
+	free(var);
+	free(value);
+}

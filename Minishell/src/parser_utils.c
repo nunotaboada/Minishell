@@ -12,6 +12,21 @@
 
 #include "../minishell.h"
 
+void	initnodecmds(t_cmds *node)
+{
+	node->cmd_line = NULL;
+	node->new_dir = NULL;
+	node->path = NULL;
+	node->value = NULL;
+	node->var = NULL;
+	node->oldpwd = NULL;
+	node->pwd = NULL;
+	node->index = 0;
+	node->total = 0;
+	node->infd = STDIN_FILENO;
+	node->outfd = STDOUT_FILENO;
+}
+
 /*retirar esta função*/
 void	print_cmds(t_shell *sh)
 {
@@ -60,7 +75,6 @@ void	*node_cmds(t_cmds **node)
 
 	new = NULL;
 	new = (t_cmds *)malloc(sizeof(t_cmds));
-	printf("dentro do parser node_cmd %p\n", new);
 	if (!new)
 		return (NULL);
 	new->next = NULL;
@@ -88,13 +102,10 @@ void	free_listcmd(t_cmds *head)
 	{
 		if (head->cmd_line != NULL)
 		{
-			i = 0;
+			i = -1;
 			cmd_line = head->cmd_line;
-			while (cmd_line[i] != NULL)
-			{
+			while (cmd_line[++i] != NULL)
 				free(cmd_line[i]);
-				i++;
-			}
 			free(cmd_line);
 		}
 		free(head->new_dir);

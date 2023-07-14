@@ -38,34 +38,7 @@ char	*fullpath(char *path, t_token *token)
 	return (allpath);
 }
 
-static int	redheredoc(char *delimeter)
-{
-	char		*buffer;
-	int			fd[2];
-
-	pipe(fd);
-	while (1)
-	{
-		buffer = readline("> ");
-		if (!buffer)
-		{
-			free(buffer);
-			break ;
-		}
-		if (ft_strcmp(buffer, delimeter) == 0)
-		{
-			free(buffer);
-			break ;
-		}
-		ft_putendl_fd(buffer, fd[1]);
-	}
-	close(fd[1]);
-	dup2(fd[0], STDIN_FILENO);
-	close(fd[0]);
-	return (0);
-}
-
-int	parse_redirecs(t_cmds *node, t_token *token)
+int	parse_redirecs(t_shell *sh, t_cmds *node, t_token *token)
 {
 	if (ft_strcmp(token->word, ">") == 0 \
 	|| ft_strcmp(token->word, ">>") == 0)
@@ -73,6 +46,6 @@ int	parse_redirecs(t_cmds *node, t_token *token)
 	if (ft_strcmp(token->word, "<") == 0)
 		return (filein(node, token->next));
 	if (ft_strcmp(token->word, "<<") == 0)
-		return (redheredoc(token->next->word));
+		return (checkheredoc(sh, node, token->next->word));
 	return (0);
 }

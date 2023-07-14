@@ -6,21 +6,21 @@
 #    By: nsoares- <nsoares-@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/27 17:52:53 by nsoares-          #+#    #+#              #
-#    Updated: 2023/05/10 21:00:38 by nsoares-         ###   ########.fr        #
+#    Updated: 2023/07/12 17:28:09 by nsoares-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = minishell
 
 CC = cc
-CFLAGS = -Wall -Werror -Wextra -g0
+CFLAGS = -Wall -Werror -Wextra -g #-fsanitize=address
 LIBFT = ./libft/libft.a
 RM = rm -rf
 
 CPPFLAGS = -I/usr/local/opt/readline/include
 LDFLAGS = -L/usr/local/opt/readline/lib
 
-SRC = main.c prompt.c init.c signal.c utils.c echo.c builtins.c pwd.c cd.c exit.c envp.c mtr_util.c export.c unset.c env.c ft_token_utils.c aspas.c cmd_utils.c expander.c expand_utils.c error.c input.c parser.c parser_utils.c path.c exec.c free.c redirect_in.c redirect_out.c redirects_utils.c
+SRC = main.c prompt.c init.c signal.c utils.c echo.c builtins.c pwd.c cd.c exit.c envp.c mtr_util.c export.c unset.c env.c ft_token_utils.c aspas.c cmd_utils.c expander.c expander_utils.c expander_utils1.c expander_utils2.c expander_utils3.c expander_utils4.c error.c input.c input_utils.c parser.c parser_utils.c path.c exec.c exec_utils.c free.c redirect_in.c redirect_out.c redirects_utils.c heredoc.c heredoc_utils.c heredoc_utils2.c heredoc_utils3.c heredoc_utils4.c operators.c aspas1.c aspas2.c
 
 
 # OBJS_FILES = $(SRC:.c=.o)
@@ -86,11 +86,14 @@ fclean: clean
 re:	fclean all
 	@ $(RE)
 
-# noleaks: re
-# 	valgrind ./minishell
+#  noleaks: re
+ 	# valgrind --track-fds=yes././minishell
 
 # noleaksfull: re
 # 	valgrind --leak-check=full --show-leak-kinds=all -s ./minishell
+
+# noleakslog: re
+# 	valgrind --leak-check=full --show-leak-kinds=all --error-limit=no --gen-suppressions=all --log-file=output.log ./minishell
 
 rerun: re
 	./minishell

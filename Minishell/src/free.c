@@ -18,7 +18,7 @@ void	free_all(t_shell *sh)
 		return ;
 	mtr_free(sh->envp);
 	free_listtoken(sh->head_token);
-	free_listcmds(sh->cmds);
+	free_listcmd(sh->cmds);
 	sh->cmds = NULL;
 	sh->head_token = NULL;
 	sh = NULL;

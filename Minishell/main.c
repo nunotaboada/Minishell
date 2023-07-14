@@ -32,7 +32,12 @@ void	ft_wait(t_shell *sh)
 	if (waitpid(sh->pid, &wstatus, 0) != -1)
 	{
 		if (WIFSIGNALED(wstatus))
-			wstatus += 128;
+		{
+			if (wstatus == 131)
+				g_ex_status = wstatus;
+			else
+				wstatus += 128;
+		}
 		if (sh->fork)
 			g_ex_status = wstatus;
 		if (g_ex_status == 130)
@@ -41,64 +46,12 @@ void	ft_wait(t_shell *sh)
 	}
 	while (sh->proc)
 	{
+		signal(SIGQUIT, signal_quit);
 		wait(0);
 		sh->proc--;
 	}
 	if (g_ex_status > 255)
 		g_ex_status = g_ex_status / 255;
-	printf("processos %d\n", sh->proc);
-}
-
-int	operators(t_shell *sh)
-{
-	t_token			*start;
-
-	start = NULL;
-	start = sh->head_token;
-	while (start)
-	{
-		if (start->type == 'O')
-		{
-			if (ft_strcmp(start->word, "|") == 0)
-			{
-				if (start->next == NULL || start->prev == NULL \
-				|| start->next->type == 'O')
-				{
-					g_ex_status = 2;
-					printf("minishell: syntax error near unexpected token \
-					'%s'\n", start->word);
-					return (1);
-				}
-			}
-			else if (ft_strcmp(start->word, "<") == 0 || ft_strcmp(start->word, \
-			">") == 0 || ft_strcmp(start->word, ">>") == 0)
-			{
-				if (start->next == NULL )
-				{
-					g_ex_status = 2;
-					printf("minishell: syntax error near unexpected \
-					token `newline\'\n");
-					return (1);
-				}
-				if (start->next->type == 'O')
-				{
-					g_ex_status = 2;
-					printf("minishell: syntax error near unexpected token \
-					'%s'\n", start->word);
-					return (1);
-				}
-			}
-			else if (start->prev == NULL && ft_strcmp(start->word, "<<") == 0)
-			{
-				g_ex_status = 2;
-				printf("minishell: syntax error near unexpected \
-				token '%s'\n", start->word);
-				return (1);
-			}
-		}
-		start = start->next;
-	}
-	return (0);
 }
 
 int	main(int ac, char **av, char **envp)
@@ -113,7 +66,6 @@ int	main(int ac, char **av, char **envp)
 		if (!shell.cmd_line)
 			continue ;
 		add_history(shell.cmd_line);
-		// words(&shell);
 		if (!words(&shell))
 			execcmd(&shell);
 		ft_wait(&shell);

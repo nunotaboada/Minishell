@@ -6,7 +6,7 @@
 /*   By: nsoares- <nsoares-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 09:12:18 by nsoares-          #+#    #+#             */
-/*   Updated: 2023/05/17 15:30:38 by nsoares-         ###   ########.fr       */
+/*   Updated: 2023/07/12 15:25:58 by nsoares-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,10 +18,25 @@
 # include <signal.h>
 # include <readline/readline.h>
 # include <readline/history.h>
-# include <dirent.h> // para o dir na função isdir
+# include <dirent.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <sys/stat.h>
+# include <fcntl.h>
+# include <sys/types.h>
 # include <sys/wait.h>
 
 extern int	g_ex_status;
+
+typedef struct s_datamini
+{
+	int			i;
+	int			start;
+	char		*rest;
+	char		*env;
+	char		*conc;
+}	t_datamini;
 
 typedef struct s_token
 {
@@ -68,7 +83,9 @@ typedef struct s_shell
 void	init(int ac, char **av, char **envp, t_shell *shell);
 char	*show_prompt(t_shell *sh);
 void	signals(void);
+void	signal_handler(int sig);
 int		operators(t_shell *sh);
+void	signal_quit2(int sig);
 
 /*Builtins*/
 int		builtins(t_cmds *cmds, t_shell *shell);
@@ -92,6 +109,7 @@ char	*get_env(char *var, t_shell *sh);
 int		nb_of_args(t_cmds *cmds);
 int		pos_char(char *str, char c);
 int		args_numbers(char *str);
+void	put_var_env_from_cmd(char *cmd, t_shell *shell);
 
 /*Utils Env*/
 char	**mtr_dup(char **matriz);
@@ -120,6 +138,7 @@ int		countaspas(char *str);
 void	wordoutaspas(t_token *node);
 int		rmvaspas(t_shell *sh);
 int		checkdaspas(t_shell *sh);
+int		checkaspas2(t_shell *sh);
 bool	verificaraspas(t_shell *sh);
 
 /*Errors*/
@@ -138,6 +157,13 @@ char	*concate(char *new_str, char *rest);
 char	*restexp(t_shell *sh, char *temp);
 char	*doexp(t_shell *sh, char *temp);
 char	*allword(t_shell *sh, char *temp);
+int		end_varpos(char *s, int pos);
+char	*checkenv(char *str, t_shell *sh);
+void	initcicle(char *str, t_datamini *data);
+void	initdatamini(t_datamini *data);
+char	*get_rest(const char *str, int start, int end);
+char	*process_env_variable(char *str, t_datamini *data, t_shell *sh);
+char	*ft_result(char *str, char *env);
 
 /*parser*/
 void	*node_cmds(t_cmds **node);
@@ -160,12 +186,25 @@ int		execcmd(t_shell *sh);
 int		is_fork(t_shell *sh, t_cmds *cmd, int *fd);
 void	makefork(t_shell *sh, t_cmds *cmd, int *fd);
 void	ft_wait(t_shell *sh);
+void	parentprocess(t_cmds *cmd, int *fd);
+void	childprocess(t_cmds *cmd, int *fd);
 
 /*redirects*/
 char	*dirpath(t_shell *sh);
 char	*fullpath(char *path, t_token *token);
-int		parse_redirecs(t_cmds *node, t_token *token);
+int		parse_redirecs(t_shell *sh, t_cmds *node, t_token *token);
+int		redheredoc(t_cmds *node, char *delimeter);
+int		checkheredoc(t_shell *sh, t_cmds *node, char *delimeter);
+void	rmvaspashe(char *str);
+int		redheredocex(t_shell *sh, t_cmds *node, char *delimeter);
+char	*her_env(t_shell *sh, char *str);
+char	*dorexpher(int *i, char *str, t_shell *sh);
 int		filein(t_cmds *node, t_token *token);
 int		fileout(t_cmds *node, t_token *token);
+void	handle_default(t_cmds *node, int fd[2]);
+int		heredocfdex(t_cmds *node, char *str);
+void	setup_signal_handlers(void);
+void	signal_quit(int sig);
+void	signal_quit1(int sig);
 
 #endif
