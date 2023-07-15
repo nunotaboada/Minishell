@@ -46,6 +46,7 @@ void	ft_wait(t_shell *sh)
 	}
 	while (sh->proc)
 	{
+		signal(SIGINT, signal_quit1);
 		signal(SIGQUIT, signal_quit);
 		wait(0);
 		sh->proc--;

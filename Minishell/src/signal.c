@@ -30,8 +30,8 @@ void	signal_quit(int sig)
 {
 	if (sig == SIGQUIT)
 	{
-		write(1, "\n", 1);
-		g_ex_status = 131;
+		// write(1, "\n", 1);
+		// g_ex_status = 131;
 		rl_replace_line("", 0);
 		rl_on_new_line();
 		ft_printf("Quit: (core dumped)\n");
@@ -44,7 +44,7 @@ void	signal_quit1(int sig)
 	if (sig == SIGINT)
 	{
 		write(1, "\n", 1);
-		g_ex_status = 130;
+		// g_ex_status = 130;
 		rl_replace_line("", 0);
 		rl_on_new_line();
 		signal(SIGQUIT, SIG_DFL);
