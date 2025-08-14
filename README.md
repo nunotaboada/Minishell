@@ -107,5 +107,13 @@ This project not only enhanced our technical expertise but also fostered collabo
 ## Notes
 
 - [**Coding Norm**](): Minishell adheres to 42's Norminette coding standards, ensuring clean and consistent code.
-- **Environment**: The project is designed for 42's Linux-based systems. Running it on other environments may result in unexpected behavior.
-- **Collaboration**: This project was a collaborative effort, and we thank Nuno Tabuada for his contributions.
+
+## Authors
+- **Names**: [Nuno Taboada](https://github.com/nunotaboada), [Nuno Valadão](https://github.com/nunovaladao),
+- **Emails**: nunotaboada@gmail.com
+
+This project was completed as part of the 42 school curriculum
+
+<a href="https://www.42porto.com/pt/">
+ 	<img alt="Static Badge" src="https://img.shields.io/badge/_-Porto-_?style=for-the-badge&logo=42&labelColor=black&color=gray&link=https%3A%2F%2Fwww.42porto.com%2Fpt%2F">	
+</a>
