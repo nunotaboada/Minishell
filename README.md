@@ -39,12 +39,12 @@ To set up and run Minishell, follow these steps:
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/nunovaladao/42_Minishell_lev3.git
+   git clone https://github.com/nunotaboada/Minishell
    ```
 2. **Navigate to the Directory**:
 
    ```bash
-   cd 42_Minishell_lev3
+   cd Minishell
    ```
 3. **Build the Project**:
 
