@@ -102,11 +102,11 @@ This project not only enhanced our technical expertise but also fostered collabo
 - [**Writing Your Own Shell**](https://www.cs.purdue.edu/homes/grr/SystemsProgrammingBook/Book/Chapter5-WritingYourOwnShell.pdf)
 - [**42 Docs: Minishell**](https://harm-smits.github.io/42docs/projects/minishell.html)
 - [**Building a Simple Shell in C**](https://blog.ehoneahobed.com/building-a-simple-shell-in-c-part-1#heading-printing-a-prompt)
-- [**Subject**](https://github.com/nunovaladao42_Minishell_lev3/blob/main/extras/en.subject.pdf) 
+- [**Subject**](https://github.com/nunotaboada/Minishell/blob/master/assets/en.subject.pdf) 
 
 ## Notes
 
-- [**Coding Norm**](): Minishell adheres to 42's Norminette coding standards, ensuring clean and consistent code.
+- [**Coding Norm**](https://github.com/nunotaboada/Minishell/blob/master/assets/en_norm.pdf): Minishell adheres to 42's Norminette coding standards, ensuring clean and consistent code.
 
 ## Authors
 - **Names**: [Nuno Taboada](https://github.com/nunotaboada), [Nuno Valadão](https://github.com/nunovaladao),
